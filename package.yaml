@@ -1,0 +1,48 @@
+name:                taskpad
+version:             0.1.0.0
+github:              "matsubara0507/taskpad"
+license:             MIT
+author:              "MATSUBARA Nobutada"
+maintainer:          "t12307043@gunma-u.ac.jp"
+copyright:           "2018 MATSUBARA Nobutada"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+description:         Please see the README on Github at <https://github.com/matsubara0507/taskpad#readme>
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wredundant-constraints
+
+- -threaded
+- -rtsopts
+- -with-rtsopts=-N
+
+default-extensions:
+- NoImplicitPrelude
+
+dependencies:
+- base >= 4.7 && < 5
+- rio >= 0.1.1.0
+
+library:
+  source-dirs: src
+
+executables:
+  taskpad-exe:
+    main:                Main.hs
+    source-dirs:         app
+    dependencies:
+    - taskpad
+
+tests:
+  taskpad-test:
+    main:                Spec.hs
+    source-dirs:         test
+    dependencies:
+    - taskpad
