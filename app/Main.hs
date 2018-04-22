@@ -2,7 +2,5 @@ module Main where
 
 import           RIO
 
-import           Lib
-
 main :: IO ()
-main = someFunc
+main = hPutBuilder stdout "taskpad cmd not yet implemented"

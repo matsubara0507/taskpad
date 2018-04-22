@@ -19,16 +19,18 @@ ghc-options:
 - -Wincomplete-uni-patterns
 - -Wredundant-constraints
 
-- -threaded
-- -rtsopts
-- -with-rtsopts=-N
-
 default-extensions:
 - NoImplicitPrelude
+
+- ConstraintKinds
+- FlexibleContexts
+- OverloadedStrings
+- TypeFamilies
 
 dependencies:
 - base >= 4.7 && < 5
 - rio >= 0.1.1.0
+- extensible
 
 library:
   source-dirs: src
@@ -37,12 +39,22 @@ executables:
   taskpad-exe:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
     dependencies:
     - taskpad
 
 tests:
   taskpad-test:
-    main:                Spec.hs
+    main:                Driver.hs
     source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
     dependencies:
     - taskpad
+    - tasty
+    - tasty-hunit
