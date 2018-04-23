@@ -37,3 +37,19 @@ test_doneTask =
   , testCase "done task of SubTask type already done" $
       done subtask1 ^. #done @?= True
   ]
+
+test_uncheckTask :: [TestTree]
+test_uncheckTask =
+  [ testCase "uncheck task of Task type" $
+      uncheck task1 ^. #done @?= False
+  , testCase "uncheck task of SubTask type" $
+      uncheck subtask2 ^. #done @?= False
+  , testCase "uncheck task of SubTask type don't done yet" $
+      uncheck subtask1 ^. #done @?= False
+  ]
+
+test_addSubTask :: [TestTree]
+test_addSubTask =
+  [ testCase "add sub task for task" $
+      addSubTask subtask1 task1 ^. #children @?= [subtask1]
+  ]
