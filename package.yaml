@@ -25,6 +25,7 @@ default-extensions:
 - ConstraintKinds
 - FlexibleContexts
 - OverloadedStrings
+- PolyKinds
 - TypeFamilies
 
 dependencies:
@@ -36,7 +37,7 @@ library:
   source-dirs: src
 
 executables:
-  taskpad-exe:
+  taskpad:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -44,6 +45,8 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - gitrev
+    - optparse-applicative
     - taskpad
 
 tests:
