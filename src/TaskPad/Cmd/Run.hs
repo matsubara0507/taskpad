@@ -7,15 +7,15 @@
 module TaskPad.Cmd.Run where
 
 import           RIO
-import qualified RIO.Text              as Text
+import qualified RIO.Map               as Map
 
 import           Data.Extensible
 import           Data.Functor.Identity
 import           Data.Proxy
-import qualified Data.Yaml             as Y
 import           TaskPad.Cmd.Options
-import           TaskPad.Data.Memo     (getTodaysDate, mkMemo)
+import           TaskPad.Data.Memo
 import           TaskPad.Data.Monad
+import           TaskPad.Data.Task
 
 run :: MonadUnliftIO m => Options -> m ()
 run opts = do
@@ -41,12 +41,23 @@ class Run kv where
 instance Run ("new" >: ()) where
   run' _ _ = do
     date <- asks (view #date)
-    let memo = mkMemo date
-    liftIO $ Y.encodeFile (Text.unpack $ date <> ".yaml") memo
+    writeMemo $ mkMemo date
     logInfo (display $ "create new task's file: " <> date <> ".yaml")
 
 instance Run ("add" >: Text) where
-  run' _ _ = showNotImpl
+  run' _ txt = do
+    date <- asks (view #date)
+    memo <- readMemo date
+    let key = foldr max 0 (Map.keys $ memo ^. #tasks) + 1
+    writeMemo (memo & #tasks `over` Map.insert key (mkTask txt))
+    logInfo ("add task: " <> display key)
 
 instance Run ("done" >: Int) where
-  run' _ _ = showNotImpl
+  run' _ key = do
+    date <- asks (view #date)
+    memo <- readMemo date
+    writeMemo (memo & #tasks `over` Map.adjust done key)
+    if Map.member key (memo ^. #tasks) then
+      logInfo ("done task: " <> display key)
+    else
+      logError ("not found task: " <> display key)
