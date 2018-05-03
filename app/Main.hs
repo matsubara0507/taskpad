@@ -38,13 +38,13 @@ options = hsequence
 subcmdParser :: Parser SubCmd
 subcmdParser = variantFrom
     $ #new  @= (newOption `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
-   <: #add  @= (strArgument (metavar "TEXT" <> help "Add task") `withInfo` "Add Task")
-   <: #done @= (argument auto (metavar "ID" <> help "Done task") `withInfo` "Done Task")
+   <: #add  @= (strArgument (metavar "TEXT" <> help "Task contents") `withInfo` "Add Task")
+   <: #done @= (argument auto (metavar "ID" <> help "Done task from id") `withInfo` "Done Task")
    <: nil
 
 newOption :: Parser NewOption
 newOption = hsequence
-    $ #date <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "DATE is given a task's date"))
+    $ #date <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "Task's date"))
    <: nil
 
 variantFrom ::
