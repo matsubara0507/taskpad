@@ -24,14 +24,17 @@ default-extensions:
 
 - ConstraintKinds
 - FlexibleContexts
+- FlexibleInstances
 - OverloadedStrings
 - PolyKinds
 - TypeFamilies
+- TypeSynonymInstances
 
 dependencies:
 - base >= 4.7 && < 5
 - rio >= 0.1.1.0
 - extensible
+- yaml
 
 library:
   source-dirs: src
