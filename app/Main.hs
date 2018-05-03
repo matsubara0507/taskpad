@@ -32,19 +32,15 @@ main = run =<< execParser opts
 options :: Parser Options
 options = hsequence
     $ #verbose <@=> switch (long "verbose" <> short 'v' <> help "Enable verbose mode: verbosity level \"debug\"")
+   <: #date    <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "Task's date"))
    <: #subcmd  <@=> subcmdParser
    <: nil
 
 subcmdParser :: Parser SubCmd
 subcmdParser = variantFrom
-    $ #new  @= (newOption `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
+    $ #new  @= (pure () `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
    <: #add  @= (strArgument (metavar "TEXT" <> help "Task contents") `withInfo` "Add Task")
    <: #done @= (argument auto (metavar "ID" <> help "Done task from id") `withInfo` "Done Task")
-   <: nil
-
-newOption :: Parser NewOption
-newOption = hsequence
-    $ #date <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "Task's date"))
    <: nil
 
 variantFrom ::

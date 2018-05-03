@@ -10,17 +10,14 @@ import           TaskPad.Data.Memo (Date)
 
 type Options = Record
   '[ "verbose" >: Bool
+   , "date"    >: Maybe Date
    , "subcmd"  >: SubCmd
    ]
 
 type SubCmd = Variant SubCmdFields
 
 type SubCmdFields =
-  '[ "new"  >: NewOption
+  '[ "new"  >: ()
    , "add"  >: Text
    , "done" >: Int
-   ]
-
-type NewOption = Record
-  '[ "date" >: Maybe Date
    ]
