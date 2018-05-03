@@ -61,3 +61,15 @@ instance Run ("done" >: Int) where
       logInfo ("done task: " <> display key)
     else
       logError ("not found task: " <> display key)
+
+instance Run ("tasks" >: ()) where
+  run' _ _ = do
+    date <- asks (view #date)
+    memo <- readMemo date
+    forM_ (Map.toList $ memo ^. #tasks) $ \(key, task) ->
+      hPutBuilder stdout . encodeUtf8Builder $ mconcat
+        [ tshow key, ": "
+        , "[", if task ^. #done then "x" else " ", "] "
+        , task ^. #name
+        , "\n"
+        ]

@@ -17,7 +17,8 @@ type Options = Record
 type SubCmd = Variant SubCmdFields
 
 type SubCmdFields =
-  '[ "new"  >: ()
-   , "add"  >: Text
-   , "done" >: Int
+  '[ "new"   >: ()
+   , "add"   >: Text
+   , "done"  >: Int
+   , "tasks" >: ()
    ]
