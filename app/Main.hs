@@ -10,7 +10,7 @@
 
 module Main where
 
-import           Paths_taskpad       (version)
+import qualified Paths_taskpad       as Meta
 import           RIO
 
 import           Data.Extensible
@@ -23,17 +23,16 @@ import           Options.Applicative
 import           TaskPad.Cmd
 
 main :: IO ()
-main = runWithShowVersion (showVersion version) =<< execParser opts
+main = run =<< execParser opts
   where
-    opts = info (options <**> helper)
+    opts = info (options <**> version Meta.version <**> helper)
          $ fullDesc
         <> header "taskpad - operate daily tasks"
 
 options :: Parser Options
 options = hsequence
-    $ #version <@=> switch (long "version" <> help "Show version")
-   <: #verbose <@=> switch (long "verbose" <> short 'v' <> help "Enable verbose mode: verbosity level \"debug\"")
-   <: #subcmd  <@=> (fmap pure subcmdParser <|> pure Nothing)
+    $ #verbose <@=> switch (long "verbose" <> short 'v' <> help "Enable verbose mode: verbosity level \"debug\"")
+   <: #subcmd  <@=> subcmdParser
    <: nil
 
 subcmdParser :: Parser SubCmd
@@ -56,6 +55,11 @@ instance Wrapper ParserInfo where
 
 withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts = info (helper <*> opts) . progDesc
+
+version :: Version -> Parser (a -> a)
+version v = infoOption (showVersion v)
+    $ long "version"
+   <> help "Show version"
 
 showVersion :: Version -> String
 showVersion v = unwords

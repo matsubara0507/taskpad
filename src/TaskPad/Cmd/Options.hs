@@ -8,9 +8,8 @@ import           RIO
 import           Data.Extensible
 
 type Options = Record
-  '[ "version" >: Bool
-   , "verbose" >: Bool
-   , "subcmd"  >: Maybe SubCmd
+  '[ "verbose" >: Bool
+   , "subcmd"  >: SubCmd
    ]
 
 type SubCmd = Variant
