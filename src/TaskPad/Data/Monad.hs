@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds        #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TypeOperators    #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module TaskPad.Data.Monad
     ( TaskPad
