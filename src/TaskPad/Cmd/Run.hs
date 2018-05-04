@@ -41,22 +41,22 @@ class Run kv where
 instance Run ("new" >: ()) where
   run' _ _ = do
     date <- asks (view #date)
-    writeMemo $ mkMemo date
+    writeMemoWithLog $ mkMemo date
     logInfo (display $ "create new task's file: " <> date <> ".yaml")
 
 instance Run ("add" >: Text) where
   run' _ txt = do
     date <- asks (view #date)
-    memo <- readMemo date
+    memo <- readMemoWithLog date
     let key = foldr max 0 (Map.keys $ memo ^. #tasks) + 1
-    writeMemo (memo & #tasks `over` Map.insert key (mkTask txt))
+    writeMemoWithLog (memo & #tasks `over` Map.insert key (mkTask txt))
     logInfo ("add task: " <> display key)
 
 instance Run ("done" >: Int) where
   run' _ key = do
     date <- asks (view #date)
-    memo <- readMemo date
-    writeMemo (memo & #tasks `over` Map.adjust done key)
+    memo <- readMemoWithLog date
+    writeMemoWithLog (memo & #tasks `over` Map.adjust done key)
     if Map.member key (memo ^. #tasks) then
       logInfo ("done task: " <> display key)
     else
@@ -65,7 +65,7 @@ instance Run ("done" >: Int) where
 instance Run ("tasks" >: ()) where
   run' _ _ = do
     date <- asks (view #date)
-    memo <- readMemo date
+    memo <- readMemoWithLog date
     forM_ (Map.toList $ memo ^. #tasks) $ \(key, task) ->
       hPutBuilder stdout . encodeUtf8Builder $ mconcat
         [ tshow key, ": "
