@@ -33,6 +33,7 @@ options :: Parser Options
 options = hsequence
     $ #verbose <@=> switch (long "verbose" <> short 'v' <> help "Enable verbose mode: verbosity level \"debug\"")
    <: #date    <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "Task's date"))
+   <: #config  <@=> strOption (long "config" <> short 'c' <> value ".taskpad.yaml" <> metavar "PATH" <> help "Configuration file")
    <: #subcmd  <@=> subcmdParser
    <: nil
 

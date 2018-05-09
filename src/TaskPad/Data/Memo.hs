@@ -15,7 +15,8 @@ module TaskPad.Data.Memo
     ) where
 
 import           RIO
-import qualified RIO.Text          as Text
+import           RIO.Directory
+import           RIO.FilePath
 import           RIO.Time
 
 import           Data.Extensible
@@ -41,24 +42,26 @@ getTodaysDate :: MonadIO m => m Date
 getTodaysDate =
   fromString . formatTime defaultTimeLocale "%0Y%m%d" <$> getZonedTime
 
-readMemo :: (MonadIO m, MonadThrow m) => Date -> m Memo
-readMemo date = do
-  file <- readFileBinary (Text.unpack $ date <> ".yaml")
+readMemo :: (MonadIO m, MonadThrow m) => FilePath -> m Memo
+readMemo path = do
+  file <- readFileBinary path
   either throwM pure $ Y.decodeEither' file
 
 readMemoWithLog ::
-  (MonadIO m, MonadThrow m, MonadReader env m, HasLogFunc env) => Date -> m Memo
-readMemoWithLog date = do
-  memo <- readMemo date
-  logDebug (display $ "read memo file: " <> date <> ".yaml")
+  (MonadIO m, MonadThrow m, MonadReader env m, HasLogFunc env)
+  => FilePath -> m Memo
+readMemoWithLog path = do
+  memo <- readMemo path
+  logDebug (fromString $ "read memo file: " <> path)
   pure memo
 
-writeMemo :: MonadIO m => Memo -> m ()
-writeMemo memo =
-  writeFileBinary (Text.unpack $ memo ^. #date <> ".yaml") (Y.encode memo)
+writeMemo :: MonadIO m => FilePath -> Memo -> m ()
+writeMemo path memo = do
+  createDirectoryIfMissing True (takeDirectory path)
+  writeFileBinary path (Y.encode memo)
 
 writeMemoWithLog ::
-  (MonadIO m, MonadReader env m, HasLogFunc env) => Memo -> m ()
-writeMemoWithLog memo = do
-  writeMemo memo
-  logDebug (display $ "write memo file: " <> memo ^. #date <> ".yaml")
+  (MonadIO m, MonadReader env m, HasLogFunc env) => FilePath -> Memo -> m ()
+writeMemoWithLog path memo = do
+  writeMemo path memo
+  logDebug (fromString $ "write memo file: " <> path)

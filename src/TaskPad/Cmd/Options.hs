@@ -11,6 +11,7 @@ import           TaskPad.Data.Memo (Date)
 type Options = Record
   '[ "verbose" >: Bool
    , "date"    >: Maybe Date
+   , "config"  >: FilePath
    , "subcmd"  >: SubCmd
    ]
 

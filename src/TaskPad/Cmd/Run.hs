@@ -13,16 +13,19 @@ import           Data.Extensible
 import           Data.Functor.Identity
 import           Data.Proxy
 import           TaskPad.Cmd.Options
+import           TaskPad.Data.Config
 import           TaskPad.Data.Memo
 import           TaskPad.Data.Monad
 import           TaskPad.Data.Task
 
-run :: MonadUnliftIO m => Options -> m ()
+run :: (MonadUnliftIO m, MonadThrow m) => Options -> m ()
 run opts = do
   date    <- maybe getTodaysDate pure $ opts ^. #date
+  config  <- readConfig (opts ^. #config)
   logOpts <- logOptionsHandle stdout (opts ^. #verbose)
   withLogFunc logOpts $ \logger -> do
     let env = #date   @= date
+           <: #config @= config
            <: #logger @= logger
            <: nil
     runRIO env $ do
@@ -41,22 +44,23 @@ class Run kv where
 instance Run ("new" >: ()) where
   run' _ _ = do
     date <- asks (view #date)
-    writeMemoWithLog $ mkMemo date
-    logInfo (display $ "create new task's file: " <> date <> ".yaml")
+    path <- getFilepath
+    writeMemoWithLog path $ mkMemo date
+    logInfo (fromString $ "create new task's file: " <> path)
 
 instance Run ("add" >: Text) where
   run' _ txt = do
-    date <- asks (view #date)
-    memo <- readMemoWithLog date
+    path <- getFilepath
+    memo <- readMemoWithLog path
     let key = foldr max 0 (Map.keys $ memo ^. #tasks) + 1
-    writeMemoWithLog (memo & #tasks `over` Map.insert key (mkTask txt))
+    writeMemoWithLog path (memo & #tasks `over` Map.insert key (mkTask txt))
     logInfo ("add task: " <> display key)
 
 instance Run ("done" >: Int) where
   run' _ key = do
-    date <- asks (view #date)
-    memo <- readMemoWithLog date
-    writeMemoWithLog (memo & #tasks `over` Map.adjust done key)
+    path <- getFilepath
+    memo <- readMemoWithLog path
+    writeMemoWithLog path (memo & #tasks `over` Map.adjust done key)
     if Map.member key (memo ^. #tasks) then
       logInfo ("done task: " <> display key)
     else
@@ -64,8 +68,8 @@ instance Run ("done" >: Int) where
 
 instance Run ("tasks" >: ()) where
   run' _ _ = do
-    date <- asks (view #date)
-    memo <- readMemoWithLog date
+    path <- getFilepath
+    memo <- readMemoWithLog path
     forM_ (Map.toList $ memo ^. #tasks) $ \(key, task) ->
       hPutBuilder stdout . encodeUtf8Builder $ mconcat
         [ tshow key, ": "
