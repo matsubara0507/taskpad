@@ -34,6 +34,8 @@ dependencies:
 - base >= 4.7 && < 5
 - rio >= 0.1.1.0
 - extensible
+- template-haskell
+- th-lift-instances
 - yaml
 
 library:

@@ -1,11 +1,18 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedLabels      #-}
-{-# LANGUAGE TypeApplications      #-}
-{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE DataKinds        #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell  #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators    #-}
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 
-module TaskPad.Data.Config where
+module TaskPad.Data.Config
+  ( Config
+  , ConfigFields
+  , defaultConfig
+  , readConfig
+  , readConfigWith
+  , pathFormat
+  ) where
 
 import           RIO
 import           RIO.Directory   (doesFileExist)
@@ -13,6 +20,8 @@ import           RIO.Directory   (doesFileExist)
 import           Data.Extensible
 import           Data.Proxy
 import qualified Data.Yaml       as Y
+import qualified Data.Yaml.TH    as YTH
+import           Orphans         ()
 
 type Config = Record ConfigFields
 
@@ -22,10 +31,7 @@ type ConfigFields =
    ]
 
 defaultConfig :: Config
-defaultConfig
-    = #root      @= "."
-   <: pathFormat @= "%0Y%m%d"
-   <: nil
+defaultConfig = $$(YTH.decodeFile "template/.taskpad.yaml")
 
 readConfig :: (MonadIO m, MonadThrow m) => FilePath -> m Config
 readConfig = readConfigWith defaultConfig
