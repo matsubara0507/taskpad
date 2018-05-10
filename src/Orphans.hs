@@ -1,7 +1,10 @@
+{-# LANGUAGE DeriveLift            #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Orphans () where
@@ -15,15 +18,14 @@ import           GHC.TypeLits
 import           Instances.TH.Lift          ()
 import           Language.Haskell.TH.Syntax
 
-instance (Forall (KeyValue KnownSymbol Lift) xs) => Lift (Record xs) where
-  lift r =
-    liftRecord $ hfoldlWithIndexFor
-      (Proxy @ (KeyValue KnownSymbol Lift))
-      (\m xs x ->
-        let k = symbolVal $ proxyAssocKey m
-        in [| itemAssoc $(liftSymbolProxy k) @= $(lift $ runIdentity (getField x)) |] : xs)
-      []
-      r
+instance (Forall (KeyValue KnownSymbol (Instance1 Lift h)) xs) => Lift (RecordOf h xs) where
+  lift =
+    liftRecord . hfoldlWithIndexFor (Proxy :: Proxy (KeyValue KnownSymbol (Instance1 Lift h)))
+      (\m xs x -> [| itemAssoc $(liftSymbolProxy $ symbolVal $ proxyAssocKey m) @:> $(lift $ getField x) |] : xs)
+      mempty
+
+deriving instance Lift (h (AssocValue kv)) => Lift (Field h kv)
+deriving instance Lift a => Lift (Identity a)
 
 liftSymbolProxy :: String -> Q Exp
 liftSymbolProxy s = returnQ $ AppTypeE (ConE 'Proxy) (LitT (StrTyLit s))
