@@ -39,10 +39,11 @@ options = hsequence
 
 subcmdParser :: Parser SubCmd
 subcmdParser = variantFrom
-    $ #new   @= (pure () `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
-   <: #add   @= (strArgument (metavar "TEXT" <> help "Task contents") `withInfo` "Add Task")
-   <: #done  @= (argument auto (metavar "ID" <> help "Done task from id") `withInfo` "Done Task")
-   <: #tasks @= (pure () `withInfo` "Show Tasks")
+    $ #new      @= (pure () `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
+   <: #add      @= (strArgument (metavar "TEXT" <> help "Task contents") `withInfo` "Add Task")
+   <: #done     @= (argument auto (metavar "ID" <> help "Done task from id") `withInfo` "Done Task")
+   <: #tasks    @= (pure () `withInfo` "Show Tasks")
+   <: #template @= (pure () `withInfo` "Dump default config")
    <: nil
 
 variantFrom ::

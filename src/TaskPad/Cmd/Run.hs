@@ -7,11 +7,13 @@
 module TaskPad.Cmd.Run where
 
 import           RIO
+import qualified RIO.ByteString        as B
 import qualified RIO.Map               as Map
 
 import           Data.Extensible
 import           Data.Functor.Identity
 import           Data.Proxy
+import qualified Data.Yaml             as Y
 import           TaskPad.Cmd.Options
 import           TaskPad.Data.Config
 import           TaskPad.Data.Memo
@@ -77,3 +79,6 @@ instance Run ("tasks" >: ()) where
         , task ^. #name
         , "\n"
         ]
+
+instance Run ("template" >: ()) where
+  run' _ _ = B.putStr (Y.encode $ defaultConfig)
