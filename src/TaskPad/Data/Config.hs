@@ -15,13 +15,13 @@ module TaskPad.Data.Config
   ) where
 
 import           RIO
-import           RIO.Directory   (doesFileExist)
+import           RIO.Directory     (doesFileExist)
 
 import           Data.Extensible
 import           Data.Proxy
-import qualified Data.Yaml       as Y
-import qualified Data.Yaml.TH    as YTH
-import           Orphans         ()
+import qualified Data.Yaml         as Y
+import qualified Data.Yaml.TH      as YTH
+import           Instances.TH.Lift ()
 
 type Config = Record ConfigFields
 

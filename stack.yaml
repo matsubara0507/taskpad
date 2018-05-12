@@ -3,3 +3,4 @@ packages:
 - .
 extra-deps:
 - rio-0.1.1.0
+- extensible-0.4.9
