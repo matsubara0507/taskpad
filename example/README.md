@@ -3,12 +3,7 @@
 exec:
 
 ```
-$ taskpad new
-create new task's file: 2018/0510.yaml
-$ taskpad add "hello"
-add task: 1
-$ taskpad add "world"
-add task: 2
+$ taskpad new hello
+$ taskpad new world
 $ taskpad done 1
-done task: 1
 ```

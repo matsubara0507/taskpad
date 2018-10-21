@@ -27,24 +27,26 @@ main = run =<< execParser opts
   where
     opts = info (options <**> version Meta.version <**> helper)
          $ fullDesc
-        <> header "taskpad - operate daily tasks"
+        <> header "taskpad - operate tasks"
 
 options :: Parser Options
 options = hsequence
     $ #verbose <@=> switch (long "verbose" <> short 'v' <> help "Enable verbose mode: verbosity level \"debug\"")
-   <: #date    <@=> optional (strOption (long "date" <> short 'd' <> metavar "DATE" <> help "Task's date"))
    <: #config  <@=> strOption (long "config" <> short 'c' <> value ".taskpad.yaml" <> metavar "PATH" <> help "Configuration file")
    <: #subcmd  <@=> subcmdParser
    <: nil
 
 subcmdParser :: Parser SubCmd
 subcmdParser = variantFrom
-    $ #new      @= (pure () `withInfo` "Create a new task file. Note: if don't use --date option then use today's date.")
-   <: #add      @= (strArgument (metavar "TEXT" <> help "Task contents") `withInfo` "Add Task")
-   <: #done     @= (argument auto (metavar "ID" <> help "Done task from id") `withInfo` "Done Task")
+    $ #new      @= (nameArgument `withInfo` "Create a new task file")
+   <: #update   @= (((,) <$> idArgument <*> nameArgument) `withInfo` "Update task")
+   <: #done     @= (idArgument `withInfo` "Check done task")
    <: #tasks    @= (pure () `withInfo` "Show Tasks")
    <: #template @= (pure () `withInfo` "Dump default config")
    <: nil
+  where
+    nameArgument = strArgument (metavar "TEXT" <> help "Task name")
+    idArgument   = argument auto (metavar "ID" <> help "Task id")
 
 variantFrom ::
   Forall (KeyIs KnownSymbol) xs => RecordOf ParserInfo xs -> Parser (Variant xs)
