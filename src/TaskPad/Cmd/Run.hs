@@ -49,7 +49,11 @@ instance Run ("done" >: Int) where
     pure ()
 
 instance Run ("tasks" >: ()) where
-  run' _ _ = showNotImpl
+  run' _ _ = do
+    tasks <- readTasks
+    forM_ tasks $ \task -> do
+      let line = tshow (task ^. #id) <> ": " <> task ^. #name <> "\n"
+      hPutBuilder stdout (encodeUtf8Builder $ line)
 
 instance Run ("template" >: ()) where
   run' _ _ = B.putStr (Y.encode $ defaultConfig)

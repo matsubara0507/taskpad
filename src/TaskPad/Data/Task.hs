@@ -82,3 +82,12 @@ updateTask idx f = do
   task <- f <$> readTask' path
   writeTask' path task
   pure task
+
+readTasks :: TaskPad [Task]
+readTasks = do
+  workDir <- asks (view #work . view #config)
+  paths <- listDirectory workDir
+  forM paths $ \path -> do
+    let path' = workDir ++ "/" ++ path
+    logDebug (fromString $ "read task file: " <> path')
+    readTask' path'
